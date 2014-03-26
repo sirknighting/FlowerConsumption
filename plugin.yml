@@ -1,4 +1,5 @@
 name: ConsumeFlowers
 main: com.github.sirknighting.eatFlowers.FlowerEatingPlugin
-version: v0.0.3
+version: 0.1.1
 author: sirknighting
+description: allows the eating of flowers

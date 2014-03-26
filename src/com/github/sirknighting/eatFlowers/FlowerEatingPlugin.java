@@ -5,6 +5,8 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -17,34 +19,45 @@ public class FlowerEatingPlugin extends JavaPlugin implements Listener{
 	public void onEnable(){
 		this.getServer().getPluginManager().registerEvents(this, this);
 	}
-	@SuppressWarnings("deprecation")
+	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerInteract(PlayerInteractEvent event){
-		if(!event.hasItem())return;
-		ItemStack item=event.getItem();
-		if(item.getTypeId()==175||item.getTypeId()==37||item.getTypeId()==38){
-			Action action=event.getAction();
-			if(action==Action.RIGHT_CLICK_AIR){
-				eatFlowerInHand(event.getPlayer());
-				//event.setCancelled(true);//NOT SURE IF THIS IS NECESSARY
-				return;
-			}
-			if(action==Action.RIGHT_CLICK_BLOCK){//TODO MAKE SURE TO DEAL WITH FLOWERPOTS TOO;
-				Block bWBWG=event.getClickedBlock().getRelative(event.getBlockFace());//bWBWG=blockWhereBlockWouldGo
-				if(bWBWG.getType()!=Material.AIR) return;
-				if(event.getClickedBlock().getType().equals(Material.FLOWER_POT)){
-					return;
-				}//FLOWER POTS ARE ANNOYING,
-				Material matUnder=bWBWG.getRelative(BlockFace.DOWN).getType();//IF WE're NOT DEALING WITH A FLOWERPOT,
-				if(matUnder==Material.DIRT||matUnder==Material.GRASS||matUnder==Material.SOIL){//THIS CONDITIONAL DEALS WITH IF THE FLOWER IS PLACEABLE, ignores light level.
-					if(item.getTypeId()==175){
-						if(bWBWG.getRelative(BlockFace.UP).getType()==Material.AIR)return;
-					}else return;
+		Player p=event.getPlayer();
+		ItemStack item=p.getItemInHand();
+		//item.getType()+""
+		switch(item.getType()){
+		case DOUBLE_PLANT: break;
+		case YELLOW_FLOWER: break;
+		case RED_ROSE: break;
+		default: return;
+		}
 
-				}
-				//TODO MAKE THIS PART PROPER AND WORKING
-				eatFlowerInHand(event.getPlayer());
+		Action action=event.getAction();
+		switch(action){
+		case RIGHT_CLICK_AIR:{
+			eatFlowerInHand(event.getPlayer());
+			//event.setCancelled(true);//NOT SURE IF THIS IS NECESSARY
+			return;
+		}
+
+		case RIGHT_CLICK_BLOCK:{//TODO MAKE SURE TO DEAL WITH FLOWERPOTS TOO;
+			Block bWBWG=event.getClickedBlock().getRelative(event.getBlockFace());//bWBWG=blockWhereBlockWouldGo
+			if(bWBWG.getType()!=Material.AIR) return;
+			if(event.getClickedBlock().getType().equals(Material.FLOWER_POT)){
 				return;
+			}//FLOWER POTS ARE ANNOYING,
+			Material matUnder=bWBWG.getRelative(BlockFace.DOWN).getType();//IF WE're NOT DEALING WITH A FLOWERPOT,
+			if((matUnder+"").equals("DIRT")||(matUnder+"").equals("GRASS")||(matUnder+"").equals("SOIL")){//THIS CONDITIONAL DEALS WITH IF THE FLOWER IS PLACEABLE, ignores light level.
+				if(item.getType().equals(Material.DOUBLE_PLANT)){
+					if(bWBWG.getRelative(BlockFace.UP).getType()==Material.AIR)return;
+				}else return;
+
 			}
+			//TODO MAKE THIS PART PROPER AND WORKING
+			eatFlowerInHand(event.getPlayer());
+			return;
+		}
+		default:
+			break;
 		}
 
 		//Result res=event.useItemInHand();
@@ -63,8 +76,10 @@ public class FlowerEatingPlugin extends JavaPlugin implements Listener{
 		else item.setAmount(amount);
 
 		player.setItemInHand(item);
-		player.setFoodLevel(player.getFoodLevel()+1);
-		player.getWorld().playSound(player.getLocation(), Sound.EAT,(float) 1.0434,(float) 1.532);//MODIFY THE MAGIC VALUES to fit a real eating sound
+		int newFoodLevel=player.getFoodLevel()+2;
+		if(newFoodLevel>20)newFoodLevel=20;
+		player.setFoodLevel(newFoodLevel);
+		player.getWorld().playSound(player.getLocation(), Sound.EAT,(float) 1,(float) 1);//MODIFY THE MAGIC VALUES to fit a real eating sound
 
 	}
 }

@@ -1,0 +1,4 @@
+name: ConsumeFlowers
+main: com.github.sirknighting.eatFlowers.FlowerEatingPlugin
+version: v0.0.3
+author: sirknighting
